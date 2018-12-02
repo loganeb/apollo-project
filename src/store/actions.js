@@ -17,10 +17,11 @@ export const actions = {
         selection.loadMarkets()
             .then(() => {
                 context.commit('setExchangeSelection', selection);
-                context.commit('setPairs', selection.markets);  
+                context.commit('setPairs', Object.keys(selection.markets));  
             })
     },
     loadTrades(context){
+        console.log('Loading trades...');
         context.commit('setTradesLoading', true);
         let exchange = new ccxt[context.state.exchangeSelection.id]({
             'enableRateLimit': true,
@@ -30,6 +31,7 @@ export const actions = {
         if(exchange.has['fetchTrades']){
             exchange.fetchTrades(context.state.pairSelection, undefined, 20)
                 .then((trades) => {
+                    console.log(trades.length, " trades loaded...");
                     context.commit('setTrades', trades);
                     context.commit('setTradesLoading', true);
                 });

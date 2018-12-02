@@ -1,14 +1,14 @@
 <template>
   <div>
-    <golden-layout class="main">
+    <golden-layout class="main" :showPopoutIcon="false">
       <gl-row>
-        <gl-component class="component" title="Exchanges">
-          <exchange></exchange>
+        <gl-component class="component" title="Exchanges" :closable="false">
+          <exchange ></exchange>
         </gl-component>
-        <gl-component class="component" title="Pairs">
+        <gl-component class="component" title="Pairs" :closable="false">
           <pair></pair>
         </gl-component>
-        <gl-component class="component" title="Trades">
+        <gl-component class="component" title="Trades" :closable="false">
           <trade></trade>
         </gl-component>
       </gl-row>
@@ -30,7 +30,7 @@ export default {
     Exchange,
     Pair,
     Trade
-  }
+  },
 }
 </script>
 

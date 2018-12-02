@@ -1,5 +1,7 @@
 export const mutations = {
     setExchanges(state, exchanges){
+        state.pair = '';
+        state.trades = [];
         state.exchanges = exchanges;
     },
     setExchangeSelection(state, selection){

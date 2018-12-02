@@ -8,10 +8,8 @@
             placeholder="Search exchanges..."
         />
         <div v-show="exchanges.length > 0" class="results">
-            <div v-for="result in results" :key="result">
-                <a class="result" href="/#" @click="setSelection(result)">
+            <div v-for="result in results" :key="result" class="result" @click="setSelection(result)">
                     {{ result }}
-                </a>
             </div>
         </div>
     </div>
@@ -37,13 +35,16 @@ export default {
         exchanges(){
             return this.$store.state.exchanges;
         },
+        pairs(){
+            return this.$store.state.pairs;
+        },
     },
     methods:{
         setSelection(selection){
             this.$store.dispatch('loadExchangeSelection', selection);
             this.search = selection;
         }
-    }
+    },
 }
 </script>
 
