@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import App from './App.vue'
-import Vuex from 'vuex'
 import vgl from 'vue-golden-layout'
 import 'golden-layout/src/css/goldenlayout-dark-theme.css'
 

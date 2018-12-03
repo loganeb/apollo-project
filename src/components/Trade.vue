@@ -2,7 +2,7 @@
     <div >
         <h1 >Trades</h1>
         <div class="trades">
-            <div  v-if="Object.keys(trades).length > 0" class="columns is-0 is-variable is-mobile">
+            <div  v-if="pairSelected" class="columns is-0 is-variable is-mobile">
                 <div class="column size">
                     <h3 >Size</h3>
                     <div class="data-column"  v-for="trade in trades" :key="trade.id">
@@ -48,8 +48,11 @@ export default {
         this.trades = JSON.parse(localStorage.getItem('trades'));
 
         this.tradeChannel = new BroadcastChannel('trade_channel');
+        this.stateChannel = new BroadcastChannel('state_channel');
+
         var self = this;
         this.tradeChannel.onmessage = function(){ self.setState()};
+        this.stateChannel.onmessage = function(){ self.setState()};
     },
     methods: {
         setState(state){

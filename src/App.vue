@@ -22,11 +22,9 @@ import ccxt from 'ccxt';
 import Exchange from './components/Exchange.vue';
 import Pair from './components/Pair.vue';
 import Trade from './components/Trade.vue';
-import store from './store/index'
 
 export default {
   name: 'app',
-  store,
   components: {
     Exchange,
     Pair,
