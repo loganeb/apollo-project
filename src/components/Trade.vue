@@ -2,7 +2,7 @@
     <div >
         <h1 >Trades</h1>
         <div class="trades">
-            <div  v-if="trades.length > 0" class="columns is-0 is-variable is-mobile">
+            <div  v-if="pair.length > 0" class="columns is-0 is-variable is-mobile">
                 <div class="column size">
                     <h3 >Size</h3>
                     <div class="data-column"  v-for="trade in trades" :key="trade.id">
@@ -28,14 +28,14 @@
 
 <script>
 export default {
-    /* data(){
+    data(){
         return{
-            bc: {},
-            trades: [],
+            tradeChannel: {},
+            trades: {},
             pair: '',
         }
-    }, */
-    computed: {
+    },
+    /* computed: {
         trades(){
             return this.$store.state.trades;
         },
@@ -45,18 +45,18 @@ export default {
         pairSelected(){
             return this.$store.state.pairSelection.length > 0;
         },
-    },
-    /* created(){
-        this.bc = new BroadcastChannel('store_channel');
+    }, */
+    created(){
+        this.tradeChannel = new BroadcastChannel('trade_channel');
         var self = this;
-        this.bc.onmessage = function(msg){ self.setState(msg.data)};
+        this.tradeChannel.onmessage = function(msg){ self.setState(msg.data)};
     },
     methods: {
         setState(state){
             this.trades = state;
             this.pair = 'USD';
         }
-    } */
+    }
 }
 
 </script>

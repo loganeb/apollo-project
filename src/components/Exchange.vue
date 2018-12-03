@@ -6,8 +6,9 @@
             type="text" 
             v-model="search"
             placeholder="Search exchanges..."
+            @focus="searching = true"
         />
-        <div v-show="exchanges.length > 0" class="results">
+        <div v-show="searching" class="results">
             <div v-for="result in results" :key="result" class="result" @click="setSelection(result)">
                     {{ result }}
             </div>
@@ -16,42 +17,73 @@
 </template>
 
 <script>
+import ccxt from 'ccxt';
+
 export default {
+
     created(){
-        this.$store.dispatch('loadExchanges');
+        this.state = JSON.parse(localStorage.getItem('state'));
+
+        this.stateChannel = new BroadcastChannel('state_channel');
+
+        var self = this;
+        this.stateChannel.onmessage = function(){ self.setState()};
+        
+        this.loadExchanges();
     },
     data(){
         return{
+            stateChannel: {},
+            results: [],
             search: '',
-            results: []
+            searching: false,
+            exchanges: [],
+            state: {},
         }
     },
     watch:{
         search(){
             this.results = this.exchanges.filter(e => e.includes(this.search.toLowerCase()));
-        }
+        },
     },
     computed: {
-        exchanges(){
-            return this.$store.state.exchanges;
-        },
         pairs(){
-            return this.$store.state.pairs;
+            return this.state.pairs;
         },
     },
     methods:{
         setSelection(selection){
-            this.$store.dispatch('loadExchangeSelection', selection);
             this.search = selection;
+            this.state.exchangeSelection = selection;
+            this.state.pairSelection = '';
+            localStorage.setItem('state', JSON.stringify(this.state));
+            this.stateChannel.postMessage('');
+            this.searching = false;
+        },
+        setState(state){
+            this.state = JSON.parse(localStorage.getItem('state'));
+            console.log('Exchange state: ', this.state);
+        },
+        loadExchanges(){
+            this.exchanges = ccxt.exchanges;
         }
     },
 }
 </script>
 
 <style>
-.results a{
-    text-decoration: none;
-    color: #fff;
+
+.result:hover{
+    background: #555;
+    cursor: pointer;
+}
+
+.results{
+    margin: auto;
+    max-height: 200px;
+    max-width: 200px;
+    background: #345;
+    overflow: auto;
 }
 
 </style>

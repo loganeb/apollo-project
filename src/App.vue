@@ -1,6 +1,6 @@
 <template>
   <div>
-    <golden-layout class="main" :showPopoutIcon="true">
+    <golden-layout class="main" :showPopoutIcon="true" @windowOpened="windowEvent" @windowClosed="windowEvent">
       <gl-row>
         <gl-component class="component" title="Exchanges" :closable="false">
           <exchange ></exchange>
@@ -33,11 +33,23 @@ export default {
   },
   data(){
     return{
-      bc: {},
+      tradeChannel: {},
+      stateChannel: {},
+      state: {
+        exchangeSelection: '',
+        pairs: [],
+        pairSelection: '',
+      },
     }
   },
   created(){
-    this.bc = new BroadcastChannel('store_channel');
+    this.tradeChannel = new BroadcastChannel('trade_channel');
+    this.stateChannel = new BroadcastChannel('state_channel');
+
+    var self = this;
+    this.stateChannel.onmessage = () =>{self.setState()};
+
+    localStorage.setItem('state', JSON.stringify(this.state));
   },
   computed:{
     trades(){
@@ -46,11 +58,22 @@ export default {
   },
   watch: {
     trades(){
-      this.bc.postMessage(Object.assign({}, this.trades));
+      this.tradeChannel.postMessage(Object.assign({}, this.trades));
+    }
+  },
+  methods:{
+    windowEvent(){
+      this.stateChannel.postMessage('');
+      console.log('Popout event')
+    },
+    setState(state){
+      console.log('State changed');
+      this.state = JSON.parse(localStorage.getItem('state'));
     }
   },
   destroyed(){
-    this.bc.close();
+    this.tradeChannel.close();
+    this.stateChannel.close();
   }
   
 }

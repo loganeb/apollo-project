@@ -23,21 +23,32 @@
 </template>
 
 <script>
+import ccxt from 'ccxt';
+
 export default {
     data(){
         return{
+            stateChannel: {},
             selection: '',
             results: [],
             search: '',
-            searching: false
+            searching: false,
+            state: {},
         }
+    },
+    mounted(){
+        this.state = JSON.parse(localStorage.getItem('state'));
+        this.stateChannel = new BroadcastChannel('state_channel');
+        
+        var self = this;
+        this.stateChannel.onmessage = function(){ self.setState()};
+    },
+    beforeUpdate(){
+        this.state = JSON.parse(localStorage.getItem('state'));
     },
     computed:{
         exchange(){
-            return this.$store.state.exchangeSelection;
-        },
-        pairs(){
-                return this.$store.state.pairs;
+            return this.state.exchangeSelection;
         },
         trades(){
             return this.$store.state.trades;
@@ -45,17 +56,30 @@ export default {
     },
     watch: {
         search(){
-            this.results = this.pairs
+            if(this.state.exchangeSelection.length > 0)
+                this.results = this.state.pairs
                             .filter(pair => pair.includes(this.search.toUpperCase()));
-        }
+        },
+        exchange(){
+            if(this.exchange.length > 0 && this.state.pairSelection === ''){
+                console.log('Loading pairs...');
+                this.loadPairs();
+            }
+        } 
     },
     methods: {
-        setSelection: function(value){
+        setSelection(value){
             this.selection = value;
             this.search = value;
-            this.$store.commit('setPairSelection', value);
             this.searching = false;
-            this.loadTrades();
+            this.state.pairSelection = value;
+            localStorage.setItem('state', JSON.stringify(this.state));
+            this.stateChannel.postMessage('');
+        },
+        setState(){
+            this.search = '';
+            this.results = [];
+            this.state = JSON.parse(localStorage.getItem('state'));
         },
 
         //Get trades from exchange every 5 seconds, stop if new exchange selected
@@ -68,6 +92,23 @@ export default {
                     self.$store.dispatch('loadTrades');
             }, 5000);
         },
+
+        loadPairs(){
+            this.results = [];
+            
+            let exchange = new ccxt[this.exchange]({
+                'enableRateLimit': true,
+                'proxy': 'https://cors-anywhere.herokuapp.com/'
+            });
+
+            var self = this;
+            exchange.loadMarkets()
+                .then(() => {
+                    self.state.pairs = Object.keys(exchange.markets);
+                    localStorage.setItem('state', JSON.stringify(self.state));
+                    self.stateChannel.postMessage('');
+                })
+        }
     }
 }
 </script>
