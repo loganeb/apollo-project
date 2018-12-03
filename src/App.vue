@@ -1,6 +1,6 @@
 <template>
   <div>
-    <golden-layout class="main" :showPopoutIcon="false">
+    <golden-layout class="main" :showPopoutIcon="true">
       <gl-row>
         <gl-component class="component" title="Exchanges" :closable="false">
           <exchange ></exchange>
@@ -31,6 +31,28 @@ export default {
     Pair,
     Trade
   },
+  data(){
+    return{
+      bc: {},
+    }
+  },
+  created(){
+    this.bc = new BroadcastChannel('store_channel');
+  },
+  computed:{
+    trades(){
+      return this.$store.state.trades;
+    }
+  },
+  watch: {
+    trades(){
+      this.bc.postMessage(Object.assign({}, this.trades));
+    }
+  },
+  destroyed(){
+    this.bc.close();
+  }
+  
 }
 </script>
 
@@ -49,7 +71,6 @@ body {
   width: 100vw;
   height: 100vh;
   margin: 0;
-  background: yellow;
 }
 
 .component {
