@@ -18,6 +18,7 @@
 
 <script>
 import vgl from 'vue-golden-layout';
+import ccxt from 'ccxt';
 import Exchange from './components/Exchange.vue';
 import Pair from './components/Pair.vue';
 import Trade from './components/Trade.vue';
@@ -40,6 +41,7 @@ export default {
         pairs: [],
         pairSelection: '',
       },
+      trades: {},
     }
   },
   created(){
@@ -50,16 +52,18 @@ export default {
     this.stateChannel.onmessage = () =>{self.setState()};
 
     localStorage.setItem('state', JSON.stringify(this.state));
+    localStorage.setItem('trades', JSON.stringify(this.trades));
   },
   computed:{
-    trades(){
-      return this.$store.state.trades;
+    pair(){
+      return this.state.pairSelection;
     }
   },
   watch: {
-    trades(){
-      this.tradeChannel.postMessage(Object.assign({}, this.trades));
-    }
+    pair(){
+      if(this.pair !== '')
+        this.loadTrades();
+    },
   },
   methods:{
     windowEvent(){
@@ -67,9 +71,36 @@ export default {
       console.log('Popout event')
     },
     setState(state){
-      console.log('State changed');
       this.state = JSON.parse(localStorage.getItem('state'));
-    }
+    },
+    loadTrades(){
+        var self = this;
+        let loop = setInterval(function(){
+            if(self.pair === '')
+                clearInterval(loop);
+            else{
+              console.log('Loading trades...', self.pair);
+              let exchange = new ccxt[self.state.exchangeSelection]({
+                  'enableRateLimit': true,
+                  'proxy': 'https://cors-anywhere.herokuapp.com/',
+              });
+
+              if(exchange.has['fetchTrades']){
+                  exchange.fetchTrades(self.state.pairSelection, undefined, 20)
+                      .then((trades) => {
+                          self.trades = trades;
+                          localStorage.setItem('trades', JSON.stringify(self.trades));
+                          self.tradeChannel.postMessage('');
+                      });
+              
+              }//end if
+              else{
+                  console.log('Trades not available');
+              }//end else
+
+            }//end else
+        }, 5000);
+    },
   },
   destroyed(){
     this.tradeChannel.close();

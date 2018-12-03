@@ -62,7 +62,6 @@ export default {
         },
         setState(state){
             this.state = JSON.parse(localStorage.getItem('state'));
-            console.log('Exchange state: ', this.state);
         },
         loadExchanges(){
             this.exchanges = ccxt.exchanges;
