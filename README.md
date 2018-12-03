@@ -2,6 +2,7 @@
 
 This project uses Vue components from [CC Trade Viewer](https://github.com/loganeb/cc-trade-viewer) and implements them in a [Golden Layout](https://golden-layout.com/) UI using [vue-golden-layout](https://github.com/eddow/vue-golden-layout).
 
+[DEMO](https://elastic-dijkstra-aae3a4.netlify.com/)
 ## Project setup
 ```
 npm install
